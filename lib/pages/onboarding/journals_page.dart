@@ -17,26 +17,47 @@ class _JournalsPageState extends State<JournalsPage> {
   List<String> _suggestions = [];
   bool _isShowingSuggestions = false;
 
-  // 预设期刊列表
+  // 预设期刊列表（支持中英文、缩写模糊搜索）
   final List<String> _journals = [
-    '心理学报',
+    // 英文综合/顶刊
     'Nature',
     'Science',
     'PNAS',
-    'Psychological Science',
-    'Journal of Experimental Psychology',
-    'Nature Human Behaviour',
-    'Neuron',
     'Cell',
     'The Lancet',
     'JAMA',
-    'Physical Review Letters',
-    'Journal of Neuroscience',
+    // 心理学/认知科学
+    'Journal of Personality and Social Psychology (JPSP)',
+    'Psychological Science',
+    'Journal of Experimental Psychology: General',
+    'Journal of Experimental Psychology: Learning, Memory, and Cognition',
+    'Journal of Experimental Psychology: Human Perception and Performance',
     'Cognition',
+    'Cognitive Psychology',
     'Trends in Cognitive Sciences',
-    'Annual Review of Psychology',
-    'Developmental Science',
+    'Emotion',
+    'Journal of Applied Psychology',
+    // 神经科学/生物学
+    'Nature Neuroscience',
+    'Nature Human Behaviour',
+    'Journal of Neuroscience',
+    'Neuron',
+    'Nature Reviews Neuroscience',
+    'Biological Psychology',
+    // 发展/教育
+    'Developmental Psychology',
     'Child Development',
+    'Developmental Science',
+    'Annual Review of Psychology',
+    // 中文期刊
+    '心理学报',
+    '心理科学',
+    '心理科学进展',
+    '应用心理学',
+    '心理发展与教育',
+    '中国临床心理学杂志',
+    '中国心理卫生杂志',
+    '教育研究',
   ];
 
   @override
@@ -362,6 +383,16 @@ class _JournalsPageState extends State<JournalsPage> {
                 foregroundColor: Colors.grey[500],
               ),
               child: const Text('跳过'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[400],
+              ),
+              child: const Text('返回上一步'),
             ),
           ],
         ),

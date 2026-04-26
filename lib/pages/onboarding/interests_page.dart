@@ -153,6 +153,16 @@ class _InterestsPageState extends State<InterestsPage> {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
+              // 至少选择一个兴趣
+              if (_selectedInterests.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('请至少选择一个兴趣领域'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+                return;
+              }
               // 保存数据
               context.read<OnboardingService>().updateInterests(_selectedInterests);
               // 跳转到期刊选择页面
@@ -183,20 +193,12 @@ class _InterestsPageState extends State<InterestsPage> {
         const SizedBox(height: 12),
         TextButton(
           onPressed: () {
-            // 保存数据（可能为空）
-            context.read<OnboardingService>().updateInterests(_selectedInterests);
-            // 跳转到期刊选择页面
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const JournalsPage(),
-              ),
-            );
+            Navigator.pop(context);
           },
           style: TextButton.styleFrom(
             foregroundColor: Colors.grey[500],
           ),
-          child: const Text('跳过'),
+          child: const Text('返回'),
         ),
       ],
     );

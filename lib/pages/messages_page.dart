@@ -4,8 +4,30 @@ import 'article_detail_page.dart';
 import 'market_post_detail_page.dart';
 import 'profile_page.dart';
 
-class MessagesPage extends StatelessWidget {
+class MessagesPage extends StatefulWidget {
   const MessagesPage({super.key});
+
+  @override
+  State<MessagesPage> createState() => _MessagesPageState();
+}
+
+class _MessagesPageState extends State<MessagesPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  /// 获取过滤后的通知列表
+  List<Map<String, dynamic>> get _filteredNotifications {
+    if (_searchQuery.isEmpty) return MockData.notifications.cast<Map<String, dynamic>>();
+    final q = _searchQuery.toLowerCase();
+    return MockData.notifications.where((n) {
+      final searchable = [
+        n['sender']?.toString() ?? '',
+        n['action']?.toString() ?? '',
+        n['content']?.toString() ?? '',
+      ].join(' ').toLowerCase();
+      return searchable.contains(q);
+    }).toList().cast<Map<String, dynamic>>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +46,54 @@ class MessagesPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: MockData.notifications.length,
-        itemBuilder: (BuildContext context, index) {
-          final notification = MockData.notifications[index];
-          return _buildNotificationItem(context, notification);
-        },
+      body: Column(
+        children: [
+          // 搜索栏
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: '搜索消息...',
+                prefixIcon: const Icon(Icons.search, size: 18),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+                isDense: true,
+              ),
+            ),
+          ),
+          // 消息列表
+          Expanded(
+            child: ListView.builder(
+              itemCount: _filteredNotifications.length,
+              itemBuilder: (BuildContext context, index) {
+                final notification = _filteredNotifications[index];
+                return _buildNotificationItem(context, notification);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

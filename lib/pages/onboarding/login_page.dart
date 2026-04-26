@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/user_onboarding_service.dart';
+import '../../main.dart';
 import 'academic_background_page.dart';
 
 /// 登录/注册页面
@@ -27,15 +28,87 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
-      // 保存数据
-      context.read<OnboardingService>().updatePhone(_phoneController.text);
-      context.read<OnboardingService>().updatePassword(_passwordController.text);
+      final phone = _phoneController.text;
+      final password = _passwordController.text;
 
-      // 跳转到学术背景页面
+      if (_isLogin) {
+        // 登录：验证手机号和密码
+        _doLogin(phone, password);
+      } else {
+        // 注册：检查手机号是否已注册
+        _doRegister(phone, password);
+      }
+    }
+  }
+
+  Future<void> _doRegister(String phone, String password) async {
+    final service = context.read<OnboardingService>();
+
+    if (service.isPhoneRegistered(phone)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('该手机号已注册，请直接登录'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    final success = await service.register(phone, password);
+    if (!mounted) return;
+
+    if (success) {
+      // 注册成功，进入 onboarding
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => const AcademicBackgroundPage(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('注册失败，请重试'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _doLogin(String phone, String password) async {
+    final service = context.read<OnboardingService>();
+
+    if (!service.isPhoneRegistered(phone)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('该手机号未注册，请先注册'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+
+    final success = await service.login(phone, password);
+    if (!mounted) return;
+
+    if (success) {
+      // 登录成功，直接进入主页（跳过 onboarding）
+      await service.completeOnboarding();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainScaffold()),
+          (route) => false,
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('密码错误，请重试'),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -93,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '探索科研前沿，洞察脑科学进展',
+                      '随时发现值得关注的科研进展',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[500],

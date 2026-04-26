@@ -55,12 +55,34 @@ class BrainScrollApp extends StatelessWidget {
 }
 
 /// Onboarding 包装器：根据完成状态决定显示登录页还是主页
-class OnboardingWrapper extends StatelessWidget {
+class OnboardingWrapper extends StatefulWidget {
   const OnboardingWrapper({super.key});
+
+  @override
+  State<OnboardingWrapper> createState() => _OnboardingWrapperState();
+}
+
+class _OnboardingWrapperState extends State<OnboardingWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    // 初始化持久化服务
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<OnboardingService>().init();
+      await context.read<UserActivityService>().init();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final onboarding = context.watch<OnboardingService>();
+
+    // 初始化未完成，显示白屏
+    if (!onboarding.isInitialized) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     // 如果已完成 onboarding，显示主应用；否则显示登录页
     if (onboarding.hasCompletedOnboarding) {
@@ -71,7 +93,7 @@ class OnboardingWrapper extends StatelessWidget {
 }
 
 class AppState extends ChangeNotifier {
-  int _currentIndex = 1; // 默认选中大世界（索引 1，因为发布按钮占索引 0）
+  int _currentIndex = 2; // 默认选中大世界（索引 2）
 
   int get currentIndex => _currentIndex;
 
@@ -115,34 +137,36 @@ class MainScaffold extends StatelessWidget {
               context.read<AppState>().updateIndex(index);
             }
           },
+          selectedFontSize: 12,
+          unselectedFontSize: 11,
           items: const [
             // 0: 发布
             BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle_outline, size: 32),
+              icon: Icon(Icons.add, size: 26),
               label: '',
             ),
             // 1: 集市
             BottomNavigationBarItem(
-              icon: Icon(Icons.store_outlined),
-              activeIcon: Icon(Icons.store),
+              icon: Icon(Icons.store_outlined, size: 24),
+              activeIcon: Icon(Icons.store, size: 26),
               label: '集市',
             ),
-            // 2: 大世界
+            // 2: 大世界（默认选中，图标稍大更显眼）
             BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined),
-              activeIcon: Icon(Icons.explore),
+              icon: Icon(Icons.explore_outlined, size: 26),
+              activeIcon: Icon(Icons.explore, size: 28),
               label: '大世界',
             ),
             // 3: 消息
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_outlined),
-              activeIcon: Icon(Icons.notifications),
+              icon: Icon(Icons.notifications_outlined, size: 24),
+              activeIcon: Icon(Icons.notifications, size: 26),
               label: '消息',
             ),
             // 4: 我
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
+              icon: Icon(Icons.person_outline, size: 24),
+              activeIcon: Icon(Icons.person, size: 26),
               label: '我',
             ),
           ],

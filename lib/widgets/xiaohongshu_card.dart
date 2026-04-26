@@ -136,16 +136,7 @@ class XiaohongshuCard extends StatelessWidget {
   }
 
   Widget _buildCoverImage() {
-    // 如果有网络图片，使用网络图片
-    if (paper['coverImage'] != null && paper['coverImage'].isNotEmpty) {
-      return Image.network(
-        paper['coverImage'],
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildTemplateDesign(),
-      );
-    }
-
-    // 如果有本地 assets 图片路径，使用 AssetImage
+    // 1. 优先使用 coverImagePath
     if (paper['coverImagePath'] != null && paper['coverImagePath'].isNotEmpty) {
       return Image.asset(
         paper['coverImagePath'],
@@ -154,7 +145,16 @@ class XiaohongshuCard extends StatelessWidget {
       );
     }
 
-    // 否则使用模板设计
+    // 2. 如果有网络图片，使用网络图片
+    if (paper['coverImage'] != null && paper['coverImage'].isNotEmpty) {
+      return Image.network(
+        paper['coverImage'],
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildTemplateDesign(),
+      );
+    }
+
+    // 3. 否则使用模板设计
     return _buildTemplateDesign();
   }
 

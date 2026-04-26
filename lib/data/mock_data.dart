@@ -278,7 +278,7 @@ class MockData {
       'authors': '张三，李四，王五',
       'doi': '10.1073/pnas.2026.001',
       'category': '发展与教育',
-      'coverImagePath': 'assets/paper_images/paper_1.png',
+      'coverImagePath': 'assets/paper_images/4岁孩子.png',
       'coverAspectRatio': 0.8, // 4:5 比例
       'coverTemplateColor': 'purple',
       'tags': ['儿童发展', '社会认知', '心理学'],
@@ -300,7 +300,7 @@ class MockData {
       'authors': 'Smith J, Chen L, Wang Y',
       'doi': '10.1038/s41562-026-001',
       'category': '情绪与心理健康',
-      'coverImagePath': 'assets/paper_images/paper_2.png',
+      'coverImagePath': 'assets/paper_images/睡眠如何重塑情绪记忆.png',
       'coverAspectRatio': 0.75, // 3:4 比例
       'coverTemplateColor': 'blue',
       'tags': ['睡眠', '记忆', '神经科学'],
@@ -322,7 +322,7 @@ class MockData {
       'authors': 'Johnson A, Liu X',
       'doi': '10.1073/pnas.2026.005',
       'category': '认知与决策',
-      'coverImagePath': 'assets/paper_images/paper_5.png',
+      'coverImagePath': 'assets/paper_images/为什么我们会脑补不存在的信息.png',
       'coverAspectRatio': 1.0, // 1:1 比例
       'coverTemplateColor': 'green',
       'tags': ['知觉', '认知科学', '脑科学'],
@@ -345,7 +345,7 @@ class MockData {
       'authors': 'Williams R, Zhang W',
       'doi': '10.1126/science.2026.003',
       'category': '认知与决策',
-      'coverImagePath': 'assets/paper_images/paper_3.png',
+      'coverImagePath': 'assets/paper_images/大脑如何在毫秒内做出价值判断.png',
       'coverAspectRatio': 0.8, // 4:5
       'coverTemplateColor': 'blue',
       'tags': ['决策', '神经科学', '心理学'],
@@ -367,7 +367,7 @@ class MockData {
       'authors': 'Garcia M, Lee K, Zhao Y',
       'doi': '10.1016/j.cell.2026.004',
       'category': '脑科学与神经',
-      'coverImagePath': 'assets/paper_images/paper_4.png',
+      'coverImagePath': 'assets/paper_images/肠道如何影响社交.png',
       'coverAspectRatio': 0.75, // 3:4
       'coverTemplateColor': 'green',
       'tags': ['肠脑轴', '微生物', '社交行为'],
@@ -389,7 +389,7 @@ class MockData {
       'authors': 'Brown T, Wu J',
       'doi': '10.1038/s41593-026-001',
       'category': '发展与教育',
-      'coverImagePath': 'assets/paper_images/paper_6.png',
+      'coverImagePath': 'assets/paper_images/青少年大脑发育的关键窗口.png',
       'coverAspectRatio': 1.0, // 1:1
       'coverTemplateColor': 'purple',
       'tags': ['青少年', '大脑发育', '认知发展'],
@@ -412,7 +412,7 @@ class MockData {
       'authors': 'Taylor S, Chen H',
       'doi': '10.1177/0956797626001',
       'category': '情绪与心理健康',
-      'coverImagePath': 'assets/paper_images/paper_7.png',
+      'coverImagePath': 'assets/paper_images/拖延症.png',
       'coverAspectRatio': 0.85, // 略长
       'coverTemplateColor': 'pink',
       'tags': ['拖延症', '情绪预测', '自我调节'],
@@ -434,7 +434,7 @@ class MockData {
       'authors': 'DeepMind Team',
       'doi': '10.1038/s41586-026-001',
       'category': 'AI与人类',
-      'coverImagePath': 'assets/paper_images/paper_8.png',
+      'coverImagePath': 'assets/paper_images/深度学习模型预测蛋白质三维结构.png',
       'coverAspectRatio': 0.75,
       'coverTemplateColor': 'orange',
       'tags': ['AI', '蛋白质', '结构生物学'],
@@ -465,7 +465,7 @@ class MockData {
       'publishDate': '2022-03',
       'author': 'Schmidhuber et al.',
       // 使用从 PDF 提取的真实图表（Figure 2: 深度学习流程图）
-      'coverImagePath': 'assets/paper_images/arxiv_2203_11115_fig2.png',
+      'coverImagePath': 'assets/paper_images/Deep learning in Neural Networks An overview.png',
       'category': 'AI与人类',
       'likes': 892,
       'comments': 134,

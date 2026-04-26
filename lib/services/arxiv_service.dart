@@ -157,19 +157,59 @@ class ArxivPaper {
     final idPart = id.split('/').last;
     final primaryCat = categories.isNotEmpty ? categories.first : '';
 
-    // 从 arXiv 分类推断中文显示名
+    // 从 arXiv 分类推断中文显示名（覆盖更广的学科领域）
     String journalName;
     switch (primaryCat) {
-      case 'cs.AI': journalName = 'AI'; break;
+      // 计算机
+      case 'cs.AI': journalName = '人工智能'; break;
       case 'cs.LG': journalName = '机器学习'; break;
+      case 'cs.CL': journalName = '计算语言学'; break;
+      case 'cs.CV': journalName = '计算机视觉'; break;
+      case 'cs.RO': journalName = '机器人学'; break;
+      case 'cs.SE': journalName = '软件工程'; break;
       case 'cs.NE': journalName = '神经网络'; break;
+      case 'cs.HC': journalName = '人机交互'; break;
+      case 'cs.CR': journalName = '网络安全'; break;
+      case 'cs.DB': journalName = '数据库'; break;
+      case 'cs.DC': journalName = '分布式计算'; break;
+      case 'cs.AR': journalName = '计算机体系结构'; break;
+      case 'cs.GL': journalName = '计算机图形'; break;
+      case 'cs.SY': journalName = '系统控制'; break;
+      case 'cs': journalName = '计算机科学'; break;
+      // 数学
+      case 'math.ST': journalName = '统计学'; break;
+      case 'math.PR': journalName = '概率论'; break;
+      case 'math.GT': journalName = '博弈论'; break;
+      case 'math.OC': journalName = '优化'; break;
+      case 'math.AP': journalName = '应用数学'; break;
+      case 'math.NA': journalName = '数值分析'; break;
+      case 'math': journalName = '数学'; break;
+      // 统计
+      case 'stat.ML': journalName = '统计机器学习'; break;
+      case 'stat.TH': journalName = '统计理论'; break;
+      case 'stat.AP': journalName = '应用统计'; break;
+      case 'stat.CO': journalName = '统计计算'; break;
+      // 生物/神经科学
       case 'q-bio.NC': journalName = '神经科学'; break;
       case 'q-bio.QM': journalName = '定量生物学'; break;
-      case 'q-bio.NC': journalName = '计算生物学'; break;
-      case 'stat.ML': journalName = '统计机器学习'; break;
+      case 'q-bio.CB': journalName = '计算生物学'; break;
+      case 'q-bio.MN': journalName = '分子网络'; break;
+      case 'q-bio': journalName = '计算生物学'; break;
+      // 物理
       case 'physics.bio-ph': journalName = '生物物理'; break;
+      case 'physics.chem-ph': journalName = '化学物理'; break;
+      case 'physics.med-ph': journalName = '医学物理'; break;
+      case 'physics': journalName = '物理'; break;
+      // 工程/信号
       case 'eess.SP': journalName = '信号处理'; break;
       case 'eess.IV': journalName = '图像处理'; break;
+      case 'eess.SY': journalName = '系统工程'; break;
+      // 经济学
+      case 'econ.EM': journalName = '计量经济学'; break;
+      case 'econ.TH': journalName = '经济理论'; break;
+      // 金融
+      case 'q-fin.TR': journalName = '交易'; break;
+      case 'q-fin.RM': journalName = '风险管理'; break;
       default: journalName = primaryCat.isNotEmpty ? primaryCat : 'arXiv';
     }
 
@@ -264,12 +304,20 @@ extension ArxivCategory on ArxivPaper {
       'q-bio': '计算生物学',
       'cs.AI': '人工智能',
       'cs.LG': '机器学习',
+      'cs.CL': '计算语言学',
+      'cs.CV': '计算机视觉',
       'cs.NE': '神经网络',
+      'cs.HC': '人机交互',
+      'cs.SE': '软件工程',
       'q-bio.QM': '定量方法',
       'physics.bio-ph': '生物物理',
       'stat.ML': '统计机器学习',
       'eess.SP': '信号处理',
       'eess.IV': '图像处理',
+      'math.ST': '统计学',
+      'math.PR': '概率论',
+      'math.GT': '博弈论',
+      'econ.TH': '经济理论',
     };
 
     for (var cat in categories) {
@@ -291,6 +339,8 @@ extension ArxivCategory on ArxivPaper {
       'q-bio': 'DNA、细胞、分子',
       'physics': '物理、粒子、波形',
       'stat': '统计图表、数据分布',
+      'math': '数学公式、几何图形、符号',
+      'econ': '经济模型、决策图表、市场',
     };
 
     for (var cat in categories) {

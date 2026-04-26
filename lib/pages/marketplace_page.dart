@@ -13,6 +13,10 @@ class MarketplacePage extends StatefulWidget {
 class _MarketplacePageState extends State<MarketplacePage> {
   String _selectedCategory = '全部';
 
+  // 搜索状态
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   // 点赞/收藏状态（集市页内部）
   final Map<String, bool> _likedPosts = {};
   final Map<String, bool> _savedPosts = {};
@@ -50,13 +54,32 @@ class _MarketplacePageState extends State<MarketplacePage> {
 
   // 根据分类筛选帖子
   List<Map<String, dynamic>> get _filteredPosts {
-    if (_selectedCategory == '全部') {
-      return MockData.marketplacePosts;
+    var posts = MockData.marketplacePosts;
+
+    // 分类筛选
+    if (_selectedCategory != '全部') {
+      posts = posts.where((post) {
+        final tags = post['tags'] as List? ?? [];
+        return tags.any((tag) => tag == _selectedCategory);
+      }).toList();
     }
-    return MockData.marketplacePosts.where((post) {
-      final tags = post['tags'] as List? ?? [];
-      return tags.any((tag) => tag == _selectedCategory);
-    }).toList();
+
+    // 搜索过滤
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      posts = posts.where((post) {
+        final searchable = [
+          post['title']?.toString() ?? '',
+          post['content']?.toString() ?? '',
+          post['summary']?.toString() ?? '',
+          post['authorName']?.toString() ?? '',
+          ...(post['tags'] as List? ?? []).map((e) => e.toString()),
+        ].join(' ').toLowerCase();
+        return searchable.contains(q);
+      }).toList();
+    }
+
+    return posts;
   }
 
   // 热搜榜点击
@@ -172,39 +195,35 @@ class _MarketplacePageState extends State<MarketplacePage> {
                   ),
                   const SizedBox(height: 12),
                   // 搜索栏
-                  GestureDetector(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('搜索功能开发中'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                  TextField(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceBackground,
+                    decoration: InputDecoration(
+                      hintText: '搜索帖子、话题...',
+                      prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.textTertiary),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 18, color: AppColors.textTertiary),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchQuery = '';
+                                });
+                              },
+                            )
+                          : null,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
                       ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.search,
-                              size: 18, color: AppColors.textTertiary),
-                          SizedBox(width: 8),
-                          Text(
-                            '搜索帖子、话题...',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textTertiary,
-                            ),
-                          ),
-                          Spacer(),
-                          Icon(Icons.tune, size: 18,
-                              color: AppColors.textTertiary),
-                        ],
-                      ),
+                      filled: true,
+                      fillColor: AppColors.surfaceBackground,
+                      isDense: true,
                     ),
                   ),
                 ],
