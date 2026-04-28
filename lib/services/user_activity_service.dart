@@ -8,6 +8,8 @@ class UserActivityService extends ChangeNotifier {
   static const String _keySaves = 'saved_articles';
   static const String _keySubscriptions = 'subscribed_journals';
   static const String _keyComments = 'article_comments';
+  static const String _keyFollowedCreators = 'followed_creators';
+  static const String _keyBio = 'user_bio';
 
   // 点赞的文章 ID 列表
   final Set<String> _likedArticles = {};
@@ -17,6 +19,10 @@ class UserActivityService extends ChangeNotifier {
   final Set<String> _subscribedJournals = {};
   // 评论：文章 ID → 评论列表
   final Map<String, List<String>> _comments = {};
+  // 关注的创作者
+  final Set<String> _followedCreators = {};
+  // 个人简介
+  String _bio = '';
 
   bool _isInitialized = false;
 
@@ -24,7 +30,12 @@ class UserActivityService extends ChangeNotifier {
   Set<String> get savedArticles => Set.from(_savedArticles);
   Set<String> get subscribedJournals => Set.from(_subscribedJournals);
   Map<String, List<String>> get comments => Map.from(_comments);
+  Set<String> get followedCreators => Set.from(_followedCreators);
+  String get bio => _bio;
   bool get isInitialized => _isInitialized;
+
+  int get totalFollowedCreators => _followedCreators.length;
+  int get totalFans => _followedCreators.length; // mock: 暂时等于关注数，后续替换
 
   bool isLiked(String articleId) => _likedArticles.contains(articleId);
   bool isSaved(String articleId) => _savedArticles.contains(articleId);
@@ -59,6 +70,11 @@ class UserActivityService extends ChangeNotifier {
         });
       }
 
+      final creatorsList = prefs.getStringList(_keyFollowedCreators) ?? [];
+      _followedCreators.addAll(creatorsList);
+
+      _bio = prefs.getString(_keyBio) ?? '';
+
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
@@ -75,6 +91,8 @@ class UserActivityService extends ChangeNotifier {
       await prefs.setStringList(_keySaves, _savedArticles.toList());
       await prefs.setStringList(_keySubscriptions, _subscribedJournals.toList());
       await prefs.setString(_keyComments, jsonEncode(_comments));
+      await prefs.setStringList(_keyFollowedCreators, _followedCreators.toList());
+      await prefs.setString(_keyBio, _bio);
     } catch (e) {
       print('⚠️ UserActivityService save error: $e');
     }
@@ -113,6 +131,22 @@ class UserActivityService extends ChangeNotifier {
   void addComment(String articleId, String comment) {
     _comments.putIfAbsent(articleId, () => []);
     _comments[articleId]!.add(comment);
+    _save();
+    notifyListeners();
+  }
+
+  void toggleFollowCreator(String creator) {
+    if (_followedCreators.contains(creator)) {
+      _followedCreators.remove(creator);
+    } else {
+      _followedCreators.add(creator);
+    }
+    _save();
+    notifyListeners();
+  }
+
+  void setBio(String newBio) {
+    _bio = newBio;
     _save();
     notifyListeners();
   }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/user_onboarding_service.dart';
 import 'services/user_activity_service.dart';
+import 'theme/app_colors.dart';
 import 'pages/home_page.dart';        // 大世界
-import 'pages/marketplace_page.dart'; // 集市
+import 'pages/marketplace_page.dart'; // 论坛
 import 'pages/messages_page.dart';    // 消息
 import 'pages/profile_page.dart';     // 我
 import 'pages/create_page.dart';      // 发布
@@ -25,7 +26,7 @@ class BrainScrollApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserActivityService()),
       ],
       child: MaterialApp(
-        title: 'Brain Scroll',
+        title: '口袋轻研',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           brightness: Brightness.light,
@@ -43,7 +44,7 @@ class BrainScrollApp extends StatelessWidget {
           ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             backgroundColor: Colors.white,
-            selectedItemColor: Colors.black,
+            selectedItemColor: AppColors.primaryDark,
             unselectedItemColor: Colors.grey,
             type: BottomNavigationBarType.fixed,
           ),
@@ -109,12 +110,12 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // IndexedStack 顺序对应底部导航：发布、集市、大世界、消息、我
-      // 但发布是弹窗，所以实际页面是：集市、大世界、消息、我
+      // IndexedStack 顺序对应底部导航：发布、论坛、大世界、消息、我
+      // 但发布是弹窗，所以实际页面是：论坛、大世界、消息、我
       body: IndexedStack(
         index: context.watch<AppState>().currentIndex - 1, // 减 1 是因为发布按钮占索引 0
         children: const [
-          MarketplacePage(),  // 0: 集市（对应底部索引 1）
+          MarketplacePage(),  // 0: 论坛（对应底部索引 1）
           HomePage(),         // 1: 大世界（对应底部索引 2）
           MessagesPage(),     // 2: 消息（对应底部索引 3）
           ProfilePage(),      // 3: 我（对应底部索引 4）
@@ -139,22 +140,41 @@ class MainScaffold extends StatelessWidget {
           },
           selectedFontSize: 12,
           unselectedFontSize: 11,
-          items: const [
+          items: [
             // 0: 发布
             BottomNavigationBarItem(
               icon: Icon(Icons.add, size: 26),
               label: '',
             ),
-            // 1: 集市
+            // 1: 论坛
             BottomNavigationBarItem(
               icon: Icon(Icons.store_outlined, size: 24),
               activeIcon: Icon(Icons.store, size: 26),
-              label: '集市',
+              label: '论坛',
             ),
-            // 2: 大世界（默认选中，图标稍大更显眼）
+            // 2: 大世界（使用 assets/images/world_map_icon.png，默认选中）
             BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined, size: 26),
-              activeIcon: Icon(Icons.explore, size: 28),
+              icon: Opacity(
+                opacity: 0.6,
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/world_map_icon.png',
+                    width: 34,
+                    height: 34,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.public, size: 32, color: Colors.grey),
+                  ),
+                ),
+              ),
+              activeIcon: ClipOval(
+                child: Image.asset(
+                  'assets/images/world_map_icon.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+              ),
               label: '大世界',
             ),
             // 3: 消息

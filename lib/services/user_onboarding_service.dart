@@ -6,6 +6,8 @@ import 'dart:convert';
 class OnboardingData {
   String phone;
   String password;
+  String? username;
+  String? bio;
   String? major;
   String? degree;
   int? researchExperience;
@@ -15,6 +17,8 @@ class OnboardingData {
   OnboardingData({
     this.phone = '',
     this.password = '',
+    this.username,
+    this.bio,
     this.major,
     this.degree,
     this.researchExperience,
@@ -26,6 +30,8 @@ class OnboardingData {
   OnboardingData copyWith({
     String? phone,
     String? password,
+    String? username,
+    String? bio,
     String? major,
     String? degree,
     int? researchExperience,
@@ -35,6 +41,8 @@ class OnboardingData {
     return OnboardingData(
       phone: phone ?? this.phone,
       password: password ?? this.password,
+      username: username ?? this.username,
+      bio: bio ?? this.bio,
       major: major ?? this.major,
       degree: degree ?? this.degree,
       researchExperience: researchExperience ?? this.researchExperience,
@@ -50,6 +58,8 @@ class OnboardingData {
   Map<String, dynamic> toJson() => {
         'phone': phone,
         'password': password,
+        'username': username,
+        'bio': bio,
         'major': major,
         'degree': degree,
         'researchExperience': researchExperience,
@@ -61,6 +71,8 @@ class OnboardingData {
   factory OnboardingData.fromJson(Map<String, dynamic> json) => OnboardingData(
         phone: json['phone'] ?? '',
         password: json['password'] ?? '',
+        username: json['username'],
+        bio: json['bio'],
         major: json['major'],
         degree: json['degree'],
         researchExperience: json['researchExperience'],
@@ -204,6 +216,16 @@ class OnboardingService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 更新个人资料
+  void updateProfile({String? username, String? bio}) {
+    _data = _data.copyWith(
+      username: username,
+      bio: bio,
+    );
+    _save();
+    notifyListeners();
+  }
+
   /// 完成 onboarding
   Future<void> completeOnboarding() async {
     _hasCompletedOnboarding = true;
@@ -230,6 +252,9 @@ class OnboardingService extends ChangeNotifier {
 
   /// 获取用户显示名称
   String getDisplayName() {
+    if (_data.username != null && _data.username!.isNotEmpty) {
+      return _data.username!;
+    }
     if (_data.phone.isNotEmpty) {
       return '用户${_data.phone.substring(_data.phone.length - 4)}';
     }

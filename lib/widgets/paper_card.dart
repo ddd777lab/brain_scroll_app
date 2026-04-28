@@ -33,18 +33,10 @@ class PaperCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // 背景图占位
+            // 背景图：优先使用本地 coverImagePath
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                paper['coverImage'] ?? '',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (_, __, ___) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.science, size: 80, color: Colors.grey),
-                ),
-              ),
+              child: _buildCoverImage(),
             ),
             // 渐变遮罩
             Container(
@@ -180,22 +172,14 @@ class PaperCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 封面图
+            // 封面图：优先使用本地 coverImagePath
             AspectRatio(
-              aspectRatio: 4 / 3,
+              aspectRatio: paper['coverAspectRatio'] ?? 4 / 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
                 ),
-                child: Image.network(
-                  paper['coverImage'] ?? '',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.science, size: 40, color: Colors.grey),
-                  ),
-                ),
+                child: _buildCoverImage(),
               ),
             ),
             // 内容区
@@ -273,6 +257,36 @@ class PaperCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCoverImage() {
+    // 1. 优先使用本地 coverImagePath
+    if (paper['coverImagePath'] != null && paper['coverImagePath'].isNotEmpty) {
+      return Image.asset(
+        paper['coverImagePath'],
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildPlaceholder(),
+      );
+    }
+
+    // 2. 其次使用网络图片
+    if (paper['coverImage'] != null && paper['coverImage'].isNotEmpty) {
+      return Image.network(
+        paper['coverImage'],
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildPlaceholder(),
+      );
+    }
+
+    // 3. fallback 到占位图
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: Colors.grey[200],
+      child: const Icon(Icons.science, size: 40, color: Colors.grey),
     );
   }
 }

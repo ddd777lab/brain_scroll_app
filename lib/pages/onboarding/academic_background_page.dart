@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/user_onboarding_service.dart';
+import '../../theme/app_colors.dart';
 import '../../widgets/onboarding/searchable_dropdown.dart';
 import 'interests_page.dart';
 
@@ -46,7 +47,6 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF4ADE80); // 薄荷绿
 
     return Scaffold(
       body: SafeArea(
@@ -141,8 +141,8 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF4ADE80),
-                  const Color(0xFF4ADE80),
+                  AppColors.primary,
+                  AppColors.primaryLight,
                 ],
               ),
               borderRadius: BorderRadius.circular(1),
@@ -173,7 +173,7 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
       width: 10,
       height: 10,
       decoration: BoxDecoration(
-        color: isActive || isCompleted ? const Color(0xFF4ADE80) : Colors.grey[300],
+        color: isActive || isCompleted ? AppColors.primaryDark : Colors.grey[300],
         shape: BoxShape.circle,
       ),
     );
@@ -197,10 +197,10 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
               vertical: 12,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF4ADE80) : Colors.grey[100],
+              color: isSelected ? AppColors.primary : Colors.grey[100],
               borderRadius: BorderRadius.circular(25),
               border: Border.all(
-                color: isSelected ? const Color(0xFF4ADE80) : Colors.grey[300]!,
+                color: isSelected ? AppColors.primaryDark : Colors.grey[300]!,
                 width: 1.5,
               ),
             ),
@@ -229,9 +229,9 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
             Expanded(
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: const Color(0xFF4ADE80),
+                  activeTrackColor: AppColors.primaryDark,
                   inactiveTrackColor: Colors.grey[300],
-                  thumbColor: const Color(0xFF4ADE80),
+                  thumbColor: AppColors.primaryDark,
                   trackHeight: 4,
                   thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                   overlayShape: SliderComponentShape.noOverlay,
@@ -260,7 +260,7 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: const Color(0xFF4ADE80),
+                color: AppColors.primaryDark,
               ),
             ),
             Text(
@@ -318,8 +318,8 @@ class _AcademicBackgroundPageState extends State<AcademicBackgroundPage> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4ADE80),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.primaryButtonText,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

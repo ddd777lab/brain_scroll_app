@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/user_onboarding_service.dart';
+import '../../theme/app_colors.dart';
 import '../../main.dart';
 
 /// 常读期刊选择页面
@@ -97,7 +98,6 @@ class _JournalsPageState extends State<JournalsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF4ADE80); // 薄荷绿
 
     return Scaffold(
       body: SafeArea(
@@ -128,7 +128,7 @@ class _JournalsPageState extends State<JournalsPage> {
               ),
               const SizedBox(height: 32),
               // 搜索框
-              _buildSearchBox(primaryColor),
+              _buildSearchBox(),
               const SizedBox(height: 20),
               // 已选期刊
               if (_selectedJournals.isNotEmpty) ...[
@@ -144,10 +144,10 @@ class _JournalsPageState extends State<JournalsPage> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.2),
+                            color: AppColors.primary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: primaryColor,
+                              color: AppColors.primaryDark,
                               width: 1.5,
                             ),
                           ),
@@ -159,7 +159,7 @@ class _JournalsPageState extends State<JournalsPage> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: primaryColor.withOpacity(0.9),
+                                  color: AppColors.primaryDark,
                                 ),
                               ),
                               const SizedBox(width: 6),
@@ -168,7 +168,7 @@ class _JournalsPageState extends State<JournalsPage> {
                                 child: Icon(
                                   Icons.close,
                                   size: 14,
-                                  color: primaryColor.withOpacity(0.7),
+                                  color: AppColors.primaryDark.withOpacity(0.7),
                                 ),
                               ),
                             ],
@@ -205,7 +205,7 @@ class _JournalsPageState extends State<JournalsPage> {
     );
   }
 
-  Widget _buildSearchBox(Color primaryColor) {
+  Widget _buildSearchBox() {
     return Column(
       children: [
         TextField(
@@ -234,7 +234,7 @@ class _JournalsPageState extends State<JournalsPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: primaryColor, width: 2),
+              borderSide: BorderSide(color: AppColors.primaryDark, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -271,7 +271,7 @@ class _JournalsPageState extends State<JournalsPage> {
           child: Container(
             height: 2,
             decoration: BoxDecoration(
-              color: const Color(0xFF4ADE80),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(1),
             ),
           ),
@@ -281,7 +281,7 @@ class _JournalsPageState extends State<JournalsPage> {
           child: Container(
             height: 2,
             decoration: BoxDecoration(
-              color: const Color(0xFF4ADE80),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(1),
             ),
           ),
@@ -293,8 +293,8 @@ class _JournalsPageState extends State<JournalsPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF4ADE80),
-                  const Color(0xFF4ADE80),
+                  AppColors.primaryLight,
+                  AppColors.primary,
                 ],
               ),
               borderRadius: BorderRadius.circular(1),
@@ -311,7 +311,7 @@ class _JournalsPageState extends State<JournalsPage> {
       width: 10,
       height: 10,
       decoration: BoxDecoration(
-        color: isActive || isCompleted ? const Color(0xFF4ADE80) : Colors.grey[300],
+        color: isActive || isCompleted ? AppColors.primaryDark : Colors.grey[300],
         shape: BoxShape.circle,
       ),
     );
@@ -350,8 +350,8 @@ class _JournalsPageState extends State<JournalsPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4ADE80),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.primaryButtonText,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

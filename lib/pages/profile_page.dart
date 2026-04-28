@@ -17,6 +17,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _editUsernameController = TextEditingController();
+  final TextEditingController _editBioController = TextEditingController();
 
   @override
   void initState() {
@@ -27,6 +29,8 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
+    _editUsernameController.dispose();
+    _editBioController.dispose();
     super.dispose();
   }
 
@@ -37,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage>
     final displayName = onboarding.getDisplayName();
     final userDetails = onboarding.getUserDetails();
     final isCompleted = onboarding.hasCompletedOnboarding;
+    final bio = activity.bio.isEmpty ? '这个人很懒，什么都没写~' : activity.bio;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -52,25 +57,65 @@ class _ProfilePageState extends State<ProfilePage>
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: isCompleted
-                                ? [
-                                    const Color(0xFF4ADE80),
-                                    const Color(0xFF36D6A1)
-                                  ]
-                                : [Colors.grey[300]!, Colors.grey[400]!],
+                      // 头像 — 点击可切换
+                      GestureDetector(
+                        onTap: () => _showAvatarPicker(context),
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            gradient: isCompleted
+                                ? LinearGradient(
+                                    colors: [
+                                      AppColors.primaryLight,
+                                      AppColors.primaryDark,
+                                    ],
+                                  )
+                                : LinearGradient(
+                                    colors: [
+                                      Colors.grey[300]!,
+                                      Colors.grey[400]!,
+                                    ],
+                                  ),
+                            borderRadius: BorderRadius.circular(36),
                           ),
-                          borderRadius: BorderRadius.circular(36),
-                        ),
-                        child: Icon(
-                          isCompleted ? Icons.person : Icons.person_outline,
-                          size: 36,
-                          color:
-                              isCompleted ? Colors.white : Colors.grey[600],
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                isCompleted
+                                    ? Icons.person
+                                    : Icons.person_outline,
+                                size: 36,
+                                color:
+                                    isCompleted ? Colors.white : Colors.grey[600],
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 22,
+                                  height: 22,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    size: 12,
+                                    color: AppColors.primaryDark,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -78,13 +123,31 @@ class _ProfilePageState extends State<ProfilePage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              displayName,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
-                              ),
+                            // 用户名 — 右侧带铅笔图标
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    displayName,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    size: 18,
+                                    color: AppColors.textTertiary,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () =>
+                                      _showEditUsernameDialog(context),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -107,6 +170,40 @@ class _ProfilePageState extends State<ProfilePage>
                       ),
                     ],
                   ),
+                  // 个人简介
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => _showEditBioDialog(context),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceBackground,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              bio,
+                              style: TextStyle(
+                                color: activity.bio.isEmpty
+                                    ? AppColors.textTertiary
+                                    : AppColors.textPrimary,
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(Icons.edit,
+                              size: 16, color: AppColors.textTertiary),
+                        ],
+                      ),
+                    ),
+                  ),
                   // 编辑资料按钮
                   const SizedBox(height: 16),
                   SizedBox(
@@ -120,13 +217,14 @@ class _ProfilePageState extends State<ProfilePage>
                                 builder: (_) => const LoginPage()),
                             (route) => false,
                           );
+                        } else {
+                          _showEditUsernameDialog(context);
                         }
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.textPrimary,
                         side: const BorderSide(color: AppColors.border),
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -138,68 +236,53 @@ class _ProfilePageState extends State<ProfilePage>
               ),
             ),
           ),
-          // 统计 + 订阅 + 分栏 Tab
+          // 我的订阅标签
+          if (activity.subscribedJournals.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Container(
+                color: AppColors.cardBackground,
+                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: activity.subscribedJournals.map((journal) {
+                    return InkWell(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                '已进入「$journal」相关内容，筛选功能开发中'),
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Chip(
+                        label: Text(
+                          journal,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        backgroundColor: AppColors.surfaceBackground,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: AppColors.border),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          // 分栏 Tab + 内容
           SliverToBoxAdapter(
             child: Container(
               color: AppColors.cardBackground,
               child: Column(
                 children: [
-                  // 统计数据
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem(
-                            '关注期刊', '${activity.subscribedJournals.length}'),
-                        _buildStatItem('评论', '${activity.totalComments}'),
-                        _buildStatItem('收藏', '${activity.totalSaves}'),
-                        _buildStatItem('点赞', '${activity.totalLikes}'),
-                      ],
-                    ),
-                  ),
-                  // 我的订阅
-                  if (activity.subscribedJournals.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 12),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: activity.subscribedJournals
-                            .map((journal) => InkWell(
-                                  onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            '已进入「$journal」相关内容，筛选功能开发中'),
-                                        behavior: SnackBarBehavior.floating,
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  },
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Chip(
-                                    label: Text(
-                                      journal,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                    backgroundColor: AppColors.surfaceBackground,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: const BorderSide(
-                                          color: AppColors.border),
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                  // 分栏 Tab
                   const Divider(height: 1),
                   TabBar(
                     controller: _tabController,
@@ -245,33 +328,8 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  // 统计项
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.textTertiary,
-            fontSize: 13,
-          ),
-        ),
-      ],
-    );
-  }
-
   // ========== 三个分栏 ==========
 
-  // 评论分栏
   Widget _buildCommentsTab(UserActivityService activity) {
     final allComments = activity.comments;
     if (allComments.isEmpty) {
@@ -360,7 +418,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  // 收藏分栏
   Widget _buildSavedTab(UserActivityService activity) {
     final savedIds = activity.savedArticles.toList();
     if (savedIds.isEmpty) {
@@ -407,8 +464,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             child: Row(
               children: [
-                const Icon(Icons.bookmark,
-                    size: 18, color: AppColors.primary),
+                const Icon(Icons.bookmark, size: 18, color: AppColors.primary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -431,7 +487,6 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  // 点赞分栏
   Widget _buildLikedTab(UserActivityService activity) {
     final likedIds = activity.likedArticles.toList();
     if (likedIds.isEmpty) {
@@ -478,8 +533,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             child: Row(
               children: [
-                const Icon(Icons.favorite,
-                    size: 18, color: Colors.redAccent),
+                const Icon(Icons.favorite, size: 18, color: Colors.redAccent),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -502,15 +556,159 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  // ========== 对话框 ==========
+
+  void _showEditUsernameDialog(BuildContext context) {
+    _editUsernameController.text =
+        context.read<OnboardingService>().data.username ?? '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('修改昵称'),
+          content: TextField(
+            controller: _editUsernameController,
+            decoration: InputDecoration(
+              hintText: '输入新昵称',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            maxLength: 20,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newName = _editUsernameController.text.trim();
+                if (newName.isNotEmpty) {
+                  context
+                      .read<OnboardingService>()
+                      .updateProfile(username: newName);
+                }
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.primaryButtonText,
+              ),
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditBioDialog(BuildContext context) {
+    _editBioController.text = context.read<UserActivityService>().bio;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text('编辑个人简介'),
+          content: TextField(
+            controller: _editBioController,
+            decoration: InputDecoration(
+              hintText: '写一段简短的个人介绍...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            maxLength: 100,
+            maxLines: 3,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newBio = _editBioController.text.trim();
+                context.read<UserActivityService>().setBio(newBio);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.primaryButtonText,
+              ),
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAvatarPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: const Text('从相册选择'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('头像上传功能开发中'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt_outlined),
+                  title: const Text('拍照拍摄'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('相机功能开发中'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // ========== 设置弹窗 ==========
   void _showSettingsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text('设置'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -536,9 +734,9 @@ class _ProfilePageState extends State<ProfilePage>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      title: const Text('关于 Brain Scroll'),
+                      title: const Text('关于口袋轻研'),
                       content: const Text(
-                        'Brain Scroll 是一款面向学术爱好者的论文发现应用，帮助你轻松浏览和理解前沿研究。',
+                        '口袋轻研 是一款面向学术爱好者的论文发现应用，帮助你轻松浏览和理解前沿研究。',
                       ),
                       actions: [
                         TextButton(

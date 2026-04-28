@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_colors.dart';
 
 /// 标签选择器组件
 class TagSelector extends StatefulWidget {
@@ -14,7 +15,7 @@ class TagSelector extends StatefulWidget {
     required this.selectedTags,
     required this.onSelectionChanged,
     this.addNewLabel,
-    this.selectedColor = const Color(0xFF4ADE80), // 薄荷绿
+    this.selectedColor = AppColors.primaryDark,
   });
 
   @override

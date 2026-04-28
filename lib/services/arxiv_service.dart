@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
+// 已使用的本地图片集合（避免重复）
+final Set<String> _usedCoverImages = {};
+
 /// arXiv API 服务类
 /// 文档：https://arxiv.org/help/api
 class ArxivService {
@@ -219,6 +222,9 @@ class ArxivPaper {
       year = published.substring(0, 4);
     } catch (_) {}
 
+    // 根据标题匹配本地封面图片
+    String? coverImagePath = _matchLocalCoverImage(title);
+
     return {
       'id': 'arxiv_$idPart',
       'arxivId': id,
@@ -241,16 +247,111 @@ class ArxivPaper {
       'likes': 50 + (idPart.hashCode.abs() % 500),
       'saves': 10 + (idPart.hashCode.abs() % 100),
       'comments': 5 + (idPart.hashCode.abs() % 50),
-      'coverImagePath': null,
+      'coverImagePath': coverImagePath,
       'coverAspectRatio': 0.8 + (idPart.hashCode.abs() % 5) * 0.05,
       'coverTemplateColor': _randomColor(idPart),
     };
   }
 
-  static String _randomColor(String seed) {
-    final colors = ['blue', 'purple', 'green', 'orange', 'pink', 'teal'];
-    return colors[seed.hashCode.abs() % colors.length];
+String _randomColor(String seed) {
+  final colors = ['blue', 'purple', 'green', 'orange', 'pink', 'teal'];
+  return colors[seed.hashCode.abs() % colors.length];
+}
+
+/// 根据论文标题匹配本地封面图片
+String? _matchLocalCoverImage(String title) {
+  final titleLower = title.toLowerCase();
+
+  // 关键词到图片文件的映射
+  final imageMap = {
+    // ========== 通用占位图（优先匹配）==========
+    'alexnet': 'assets/paper_images/arxiv_2203_11115_fig1.png',
+    'convolutional neural': 'assets/paper_images/arxiv_2203_11115_fig1.png',
+    'imagenet': 'assets/paper_images/arxiv_2203_11115_fig1.png',
+    'survey of large': 'assets/paper_images/arxiv_2301_07095_fig1.png',
+    'large language': 'assets/paper_images/arxiv_2301_07095_fig1.png',
+    'polynomial chaos': 'assets/paper_images/arxiv_2306_14753_cover.png',
+    'protein': 'assets/paper_images/深度学习模型预测蛋白质三维结构.png',
+    'alpha': 'assets/paper_images/深度学习模型预测蛋白质三维结构.png',
+    // ========== 心理健康相关 ==========
+    'mental health': 'assets/paper_images/AI in Mental Health Emotional and Sentiment Analysis of Large Language Models\' Responses to Depression, Anxiety, and Stress Queries.png',
+    'depression': 'assets/paper_images/AI in Mental Health Emotional and Sentiment Analysis of Large Language Models\' Responses to Depression, Anxiety, and Stress Queries.png',
+    'anxiety': 'assets/paper_images/AI in Mental Health Emotional and Sentiment Analysis of Large Language Models\' Responses to Depression, Anxiety, and Stress Queries.png',
+    'stress': 'assets/paper_images/AI in Mental Health Emotional and Sentiment Analysis of Large Language Models\' Responses to Depression, Anxiety, and Stress Queries.png',
+    'virtual reality': 'assets/paper_images/Review on the Role of Virtual Reality in Reducing Mental Health Diseases Specifically Stress, Anxiety, and Depression.png',
+    'vr': 'assets/paper_images/Review on the Role of Virtual Reality in Reducing Mental Health Diseases Specifically Stress, Anxiety, and Depression.png',
+    'robotics': 'assets/paper_images/Robotics Technology in Mental Health Care.png',
+    'robot': 'assets/paper_images/Robotics Technology in Mental Health Care.png',
+    'fintech': 'assets/paper_images/Financial technologies (FinTech) for mental health objective financial data to better understand the relationships between financial behavior and mental health .png',
+    'financial': 'assets/paper_images/Financial technologies (FinTech) for mental health objective financial data to better understand the relationships between financial behavior and mental health .png',
+    'llm': 'assets/paper_images/Between Help and Harm An Evaluation of Mental Health Crisis Handling by LLMs.png',
+    'crisis': 'assets/paper_images/Between Help and Harm An Evaluation of Mental Health Crisis Handling by LLMs.png',
+    'explainable': 'assets/paper_images/聽 A Review on Explainable Artificial Intelligence for Healthcare.png',
+    'xai': 'assets/paper_images/聽 A Review on Explainable Artificial Intelligence for Healthcare.png',
+    'healthcare': 'assets/paper_images/聽 A Review on Explainable Artificial Intelligence for Healthcare.png',
+    'meta-ethnography': 'assets/paper_images/Technology in Association With Mental Health Meta-ethnography.png',
+    'creative': 'assets/paper_images/Creative Problem Solving in Artificially Intelligent Agents.png',
+    'problem solving': 'assets/paper_images/Creative Problem Solving in Artificially Intelligent Agents.png',
+    'compression': 'assets/paper_images/Compression, The Fermi Paradox and Artificial Super-Intelligence.png',
+    'fermi paradox': 'assets/paper_images/Compression, The Fermi Paradox and Artificial Super-Intelligence.png',
+    'super-intelligence': 'assets/paper_images/Compression, The Fermi Paradox and Artificial Super-Intelligence.png',
+    'security': 'assets/paper_images/Usable Security for ML Systems in Mental Health A Framework.png',
+    'framework': 'assets/paper_images/Usable Security for ML Systems in Mental Health A Framework.png',
+    'therapist': 'assets/paper_images/It Listens Better Than My Therapist Exploring Social Media Discourse on LLMs as Mental Health Tool.png',
+    'social media': 'assets/paper_images/It Listens Better Than My Therapist Exploring Social Media Discourse on LLMs as Mental Health Tool.png',
+    'contact structures': 'assets/paper_images/A class of tight contact structures on Sigma_2 x I 聽.png',
+    'bloch group': 'assets/paper_images/Extended Bloch group and the Cheeger-Chern-Simons class 聽.png',
+    'symplectic': 'assets/paper_images/聽 A few remarks about symplectic filling.png',
+    'symplectic field': 'assets/paper_images/聽 Compactness results in Symplectic Field Theory.png',
+    'persistence modules': 'assets/paper_images/Topological spaces of persistence modules and their properties .png',
+    'machine learning': 'assets/paper_images/The Modern Mathematics of Deep Learning.png',
+    'deep learning': 'assets/paper_images/The Modern Mathematics of Deep Learning.png',
+    'active learning': 'assets/paper_images/Active learning for data streams a survey.png',
+    'data streams': 'assets/paper_images/Active learning for data streams a survey.png',
+    'fourier': 'assets/paper_images/Fourier Learning Machines Nonharmonic Fourier-Based Neural Networks for Scientific Machine Learning.png',
+    'transfer learning': 'assets/paper_images/Predicting concentration levels of air pollutants by transfer learning and recurrent neural network.png',
+    'pollutants': 'assets/paper_images/Predicting concentration levels of air pollutants by transfer learning and recurrent neural network.png',
+    'artificial scientist': 'assets/paper_images/The Artificial Scientist Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence.png',
+    'agi': 'assets/paper_images/The Artificial Scientist Logicist, Emergentist, and Universalist Approaches to Artificial General Intelligence.png',
+    'decision-making': 'assets/paper_images/Artificial Intelligence Framework for Simulating Clinical Decision-Making A Markov Decision Process Approach.png',
+    'clinical': 'assets/paper_images/Artificial Intelligence Framework for Simulating Clinical Decision-Making A Markov Decision Process Approach.png',
+    'markov': 'assets/paper_images/Artificial Intelligence Framework for Simulating Clinical Decision-Making A Markov Decision Process Approach.png',
+    'bayes filter': 'assets/paper_images/Implementing a Bayes Filter in a Neural Circuit- The Case of Unknown Stimulus Dynamics 聽.png',
+    'neural circuit': 'assets/paper_images/Implementing a Bayes Filter in a Neural Circuit- The Case of Unknown Stimulus Dynamics 聽.png',
+    'dome recommendations': 'assets/paper_images/DOME Recommendations for supervised machine learning validation in biology.png',
+    'information thermodynamics': 'assets/paper_images/Information thermodynamics .png',
+    'learning curves': 'assets/paper_images/Learning Curves for Decision Making in Supervised Machine Learning A Survey.png',
+    'changing data sources': 'assets/paper_images/Changing Data Sources in the Age of Machine Learning for Official Statistics.png',
+    'witten': 'assets/paper_images/Witten\'s conjecture and Property P.png',
+    'cmb polarisation': 'assets/paper_images/Precise measurement of CMB polarisation from Dome-C .png',
+    'technological competence': 'assets/paper_images/Technological Competence .png',
+    'watershed': 'assets/paper_images/Watershed of Artificial Intelligence：Human Intelligence versus Machine Intelligence，and Biological Intelligence.png',
+    'human intelligence': 'assets/paper_images/Watershed of Artificial Intelligence：Human Intelligence versus Machine Intelligence，and Biological Intelligence.png',
+    // ========== 通用论文图片 fallback ==========
+    'neural': 'assets/paper_images/paper_1.png',
+    'network': 'assets/paper_images/paper_2.png',
+    'optimization': 'assets/paper_images/paper_3.png',
+    'algorithm': 'assets/paper_images/paper_4.png',
+    'model': 'assets/paper_images/paper_5.png',
+    'learning': 'assets/paper_images/paper_6.png',
+    'data': 'assets/paper_images/paper_7.png',
+    'analysis': 'assets/paper_images/paper_8.png',
+  };
+
+for (final entry in imageMap.entries) {
+  if (titleLower.contains(entry.key.toLowerCase())) {
+    // 检查是否已使用过该图片
+    if (_usedCoverImages.contains(entry.value)) {
+      return null; // 已使用过，返回 null 使用 fallback
+    }
+    _usedCoverImages.add(entry.value);
+    return entry.value;
   }
+}
+
+// 如果没找到匹配，返回 null 使用 fallback
+return null;
+}
 
   @override
   String toString() {

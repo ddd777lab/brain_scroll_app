@@ -17,7 +17,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // 点赞/收藏状态（集市页内部）
+  // 点赞/收藏状态（论坛页内部）
   final Map<String, bool> _likedPosts = {};
   final Map<String, bool> _savedPosts = {};
 
@@ -186,7 +186,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '集市',
+                    '论坛',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -255,12 +255,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
   Widget _buildCategoryChips() {
     const categories = [
       '全部',
-      '论文求助',
       '选题灵感',
-      '经验分享',
-      '资料推荐',
       'AI工具',
-      '保研/申博',
+      '整合分析',
+      '文献拆解',
+      '观点碰撞',
     ];
 
     return Container(

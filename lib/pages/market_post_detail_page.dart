@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/app_colors.dart';
 
 class MarketPostDetailPage extends StatefulWidget {
@@ -78,6 +79,19 @@ class _MarketPostDetailPageState extends State<MarketPostDetailPage> {
     });
   }
 
+  void _sharePost() {
+    final title = widget.post['title'] ?? '';
+    final tags = widget.post['tags'] as List? ?? [];
+    final category = tags.isNotEmpty ? tags.first : '论坛';
+    final content = widget.post['content'] ?? '';
+    final summary = widget.post['summary'] ?? '';
+    var shareText = summary.isNotEmpty ? summary : content;
+    if (shareText.length > 120) {
+      shareText = '${shareText.substring(0, 120)}...';
+    }
+    Share.share('我在口袋轻研看到一篇帖子：$title\n\n分类：$category\n\n$shareText\n\n来自科研推荐 App');
+  }
+
   @override
   Widget build(BuildContext context) {
     final title = widget.post['title'] ?? '';
@@ -113,14 +127,7 @@ class _MarketPostDetailPageState extends State<MarketPostDetailPage> {
               IconButton(
                 icon: const Icon(Icons.share_outlined,
                     color: AppColors.textPrimary),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('分享功能开发中'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
+                onPressed: () => _sharePost(),
               ),
             ],
             systemOverlayStyle: SystemUiOverlayStyle.dark,

@@ -392,7 +392,35 @@ class _HomePageState extends State<HomePage> {
 
       if (newPapers.isNotEmpty) {
         setState(() {
-          papers.addAll(newPapers);
+          // 1. 先过滤：移除重复的本地图片（只保留第一次出现的）
+          final usedImages = <String>{};
+          final filteredPapers = <Map<String, dynamic>>[];
+          for (final p in newPapers) {
+            final coverPath = p['coverImagePath'] as String?;
+            if (coverPath == null) {
+              // 没有本地图片的，保留
+              filteredPapers.add(p);
+            } else if (!usedImages.contains(coverPath)) {
+              // 有本地图片且未使用过，保留并标记
+              filteredPapers.add(p);
+              usedImages.add(coverPath);
+            } else {
+              // 本地图片已使用过，清除该图片路径，使用模板
+              p['coverImagePath'] = null;
+              filteredPapers.add(p);
+            }
+          }
+
+          // 2. 排序：有本地图片的排前面，没有的排后面
+          filteredPapers.sort((a, b) {
+            final aHasCover = a['coverImagePath'] != null;
+            final bHasCover = b['coverImagePath'] != null;
+            if (aHasCover && !bHasCover) return -1;
+            if (!aHasCover && bHasCover) return 1;
+            return 0;
+          });
+
+          papers.addAll(filteredPapers);
           // 更新缓存
           final existing = _categoryArxivCache[selectedCategory] ?? [];
           for (final p in newPapers) {
@@ -564,95 +592,106 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: AppColors.background,
               surfaceTintColor: Colors.transparent,
               systemOverlayStyle: SystemUiOverlayStyle.dark,
-              title: Row(
+              title: Stack(
                 children: [
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        currentTab = 'subscribe';
-                      });
-                    },
-                    child: Text(
-                      '订阅',
-                      style: TextStyle(
-                        color: currentTab == 'subscribe'
-                            ? Colors.black
-                            : Colors.grey,
-                        fontSize: 16,
-                        fontWeight: currentTab == 'subscribe'
-                            ? FontWeight.bold
-                            : FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        currentTab = 'recommend';
-                      });
-                    },
-                    child: Text(
-                      '推荐',
-                      style: TextStyle(
-                        color: currentTab == 'recommend'
-                            ? Colors.black
-                            : Colors.grey,
-                        fontSize: 16,
-                        fontWeight: currentTab == 'recommend'
-                            ? FontWeight.bold
-                            : FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  _isSearching
-                      ? Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: TextField(
-                              controller: _searchController,
-                              autofocus: true,
-                              onChanged: (value) {
-                                setState(() {
-                                  _searchQuery = value;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: '搜索论文...',
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide.none,
-                                ),
-                                filled: true,
-                                fillColor: AppColors.surfaceBackground,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                        )
-                      : GestureDetector(
-                          onTap: () {
+                  // 居中：订阅 / 推荐
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextButton(
+                          onPressed: () {
                             setState(() {
-                              _isSearching = true;
+                              currentTab = 'subscribe';
                             });
                           },
-                          child: const Icon(Icons.search, color: AppColors.textTertiary, size: 24),
+                          child: Text(
+                            '订阅',
+                            style: TextStyle(
+                              color: currentTab == 'subscribe'
+                                  ? Colors.black
+                                  : Colors.grey,
+                              fontSize: 16,
+                              fontWeight: currentTab == 'subscribe'
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                            ),
+                          ),
                         ),
-                  if (_isSearching)
-                    IconButton(
-                      icon: const Icon(Icons.clear, color: AppColors.textTertiary, size: 20),
-                      onPressed: () {
-                        setState(() {
-                          _isSearching = false;
-                          _searchQuery = '';
-                          _searchController.clear();
-                        });
-                      },
-                    )
-                  else
-                    const SizedBox(width: 12),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              currentTab = 'recommend';
+                            });
+                          },
+                          child: Text(
+                            '推荐',
+                            style: TextStyle(
+                              color: currentTab == 'recommend'
+                                  ? Colors.black
+                                  : Colors.grey,
+                              fontSize: 16,
+                              fontWeight: currentTab == 'recommend'
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 右侧：搜索图标/搜索框
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: _isSearching
+                        ? Row(
+                            children: [
+                              SizedBox(
+                                width: 120,
+                                child: TextField(
+                                  controller: _searchController,
+                                  autofocus: true,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _searchQuery = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: '搜索论文...',
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    filled: true,
+                                    fillColor: AppColors.surfaceBackground,
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.clear, color: AppColors.textTertiary, size: 20),
+                                onPressed: () {
+                                  setState(() {
+                                    _isSearching = false;
+                                    _searchQuery = '';
+                                    _searchController.clear();
+                                  });
+                                },
+                              ),
+                            ],
+                          )
+                        : GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isSearching = true;
+                              });
+                            },
+                            child: const Icon(Icons.search, color: AppColors.textTertiary, size: 24),
+                          ),
+                  ),
                 ],
               ),
             ),

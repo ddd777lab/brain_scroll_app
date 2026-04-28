@@ -29,6 +29,9 @@ dependencies:
   # Persistence
   shared_preferences: ^2.2.2
 
+  # Sharing
+  share_plus: ^10.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

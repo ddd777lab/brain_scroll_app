@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/user_onboarding_service.dart';
+import '../../theme/app_colors.dart';
 import '../../widgets/onboarding/tag_selector.dart';
 import 'journals_page.dart';
 
@@ -41,7 +42,6 @@ class _InterestsPageState extends State<InterestsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF4ADE80); // 薄荷绿
 
     return Scaffold(
       body: SafeArea(
@@ -82,7 +82,7 @@ class _InterestsPageState extends State<InterestsPage> {
                     });
                   },
                   addNewLabel: '添加其他领域',
-                  selectedColor: primaryColor,
+                  selectedColor: AppColors.primaryDark,
                 ),
               ),
               // 底部按钮
@@ -102,7 +102,7 @@ class _InterestsPageState extends State<InterestsPage> {
           child: Container(
             height: 2,
             decoration: BoxDecoration(
-              color: const Color(0xFF4ADE80),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(1),
             ),
           ),
@@ -114,8 +114,8 @@ class _InterestsPageState extends State<InterestsPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF4ADE80),
-                  const Color(0xFF4ADE80),
+                  AppColors.primaryLight,
+                  AppColors.primary,
                 ],
               ),
               borderRadius: BorderRadius.circular(1),
@@ -139,7 +139,7 @@ class _InterestsPageState extends State<InterestsPage> {
       width: 10,
       height: 10,
       decoration: BoxDecoration(
-        color: isActive || isCompleted ? const Color(0xFF4ADE80) : Colors.grey[300],
+        color: isActive || isCompleted ? AppColors.primaryDark : Colors.grey[300],
         shape: BoxShape.circle,
       ),
     );
@@ -174,8 +174,8 @@ class _InterestsPageState extends State<InterestsPage> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4ADE80),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.primaryButtonText,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

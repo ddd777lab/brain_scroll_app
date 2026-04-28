@@ -13,10 +13,12 @@ class AppColors {
   // ========== 卡片背景 ==========
   static const Color cardBackground = Color(0xFFFFFFFF);
 
-  // ========== 主题色（薄荷绿） ==========
-  static const Color primary = Color(0xFF4ADE80);
-  static const Color primaryLight = Color(0xFF86EFAC);
-  static const Color primaryDark = Color(0xFF22C55E);
+  // ========== 主题色（浅天蓝） ==========
+  static const Color primary = Color(0xFFA9D8F5);
+  static const Color primaryLight = Color(0xFFD4EDFF);
+  static const Color primaryDark = Color(0xFF4A90B8);
+  static const Color primaryBackground = Color(0xFFEAF6FD);
+  static const Color primaryButtonText = Color(0xFF1B3A4B);
 
   // ========== 文本颜色 ==========
   static const Color textPrimary = Color(0xFF1A1A1A);
